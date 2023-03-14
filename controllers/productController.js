@@ -1,4 +1,5 @@
 const { dataProduct } = require("../data");
+const { body, validationResult } = require('express-validator');
 module.exports = {
   getProduct: (_, res) => res.json(dataProduct),
   getProductById: async (req, res) => {
@@ -10,6 +11,14 @@ module.exports = {
   },
   postProduct: async (req, res) => {
     try {
+      const errors = validationResult(req);
+
+        if (!errors.isEmpty()) {
+            return res.status(400).json({
+                success: false,
+                errors: errors.array()
+            });
+        }
         const {id, item, price} = await req.body
       const product = {
         id: id || 4,
@@ -41,6 +50,14 @@ module.exports = {
   },
   updateProduct: async (req, res) => {
     try {
+      const errors = validationResult(req);
+
+        if (!errors.isEmpty()) {
+            return res.status(400).json({
+                success: false,
+                errors: errors.array()
+            });
+        }
       const paramsId = await parseInt(req.params.id);
       const {item, price} = await req.body
       const product = {

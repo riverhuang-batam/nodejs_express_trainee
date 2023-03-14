@@ -1,4 +1,5 @@
 const { dataUser } = require("../data");
+const { validationResult } = require("express-validator");
 module.exports = {
   getUsers: (_, res) => res.json(dataUser),
   getUserById: async (req, res) => {
@@ -11,14 +12,22 @@ module.exports = {
   postUser: async (req, res) => {
     const { id, firstName, lastName, role } = await req.body;
     try {
-           const user = {
-               id,
-               firstName,
-               lastName,
-               role,
-             };
-          const pushData = await dataUser.push(user);
-      
+      const errors = validationResult(req);
+
+      if (!errors.isEmpty()) {
+        return res.status(400).json({
+          success: false,
+          errors: errors.array(),
+        });
+      }
+      const user = {
+        id,
+        firstName,
+        lastName,
+        role,
+      };
+      const pushData = await dataUser.push(user);
+
       return res.json(dataUser);
     } catch (error) {
       console.log(error);
@@ -42,6 +51,14 @@ module.exports = {
   },
   updateUser: async (req, res) => {
     try {
+      const errors = validationResult(req);
+
+      if (!errors.isEmpty()) {
+        return res.status(400).json({
+          success: false,
+          errors: errors.array(),
+        });
+      }
       const paramsId = await parseInt(req.params.id);
       const { firstName, lastName, role } = req.body;
       const user = {
@@ -57,7 +74,7 @@ module.exports = {
       if (indexDataToUpdate !== -1) {
         res.json(dataUser);
       }
-      return res.json({message:"id not found"});
+      return res.json({ message: "id not found" });
     } catch (err) {
       console.log(err);
     }
